@@ -4,61 +4,48 @@
 
 // player object - name, symbol (X or O), isTurn?
 
-class Player {
-    constructor(name, symbol, isTurn) {
-        this.name = name;
-        this.symbol = symbol;
-        this.isTurn = isTurn;
-    }
+// TODO: try the module approach 
+// player object
+function createPlayer(name, marker) {
+    return { name, marker }
 }
 
-let board = [
-    ['', '', ''],
-    ['', '', ''],
-    ['', '', '']
-]
+// game board object
+let gameBoard = (function () {
+    let board = [];
 
-const player1 = new Player("Player 1", "X", true);
-const player2 = new Player("Player 2", "O", false);
+    const getGameBoard = () => board;
 
-function startGame() {
-    console.log('player1 ==>', player1);
-    console.log('player2 ==>', player2);
-}
+    const setMarker = (row, col, marker) => {
+        if (board[row][col] === "") {
+            board[row][col] = marker;
+            return true;
+        }
 
-function placeSymbol(row, col) {
-    const cell = document.querySelector(`button[data-id="${row}-${col}"]`);
-    if (player1.isTurn) {
-        board[row][col] = player1.symbol;
-        cell.textContent = player1.symbol;
-        player1.isTurn = false;
-        player2.isTurn = true;
-    } else if (player2.isTurn) {
-        board[row][col] = player2.symbol;
-        cell.textContent = player2.symbol;
-        player2.isTurn = false;
-        player1.isTurn = true;
+        return false;
+    };
+
+    const resetBoard = () => {
+        board.fill("");
     }
 
-    // toggle disable so can't select that cell
-    cell.disabled = true;
-    console.log('board ==>', board);
-}
+
+    return { getGameBoard, setMarker, resetBoard }
+})();
+
+// game state object
+let gameController = (() => {
+    
+})();
 
 
-function resetGame() {
-    board = [
-        ['', '', ''],
-        ['', '', ''],
-        ['', '', '']
-    ]
+// display controller
+let displayController = (() => {
 
-    const cells = document.querySelectorAll('.cell').forEach((cell) => {
-        cell.textContent = '';
-        cell.disabled = false;
-        player1.isTurn = true;
-        player2.isTurn = false;
-    });
+})();
+const player1 = createPlayer("Player 1", "X", true);
+const player2 = createPlayer("Player 2", "O", false);
 
-}
-startGame();
+
+console.log('player 1 ...', player1);
+console.log('player 2 ...', player2);
