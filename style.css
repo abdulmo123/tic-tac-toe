@@ -13,7 +13,7 @@ body {
 }
 
 h1 {
-    color: #333;
+    color: black;
     margin-bottom: 20px;
 }
 
@@ -40,7 +40,7 @@ h1 {
     transition: background-color 0.2s;
 }
 
-.cell:hover {
+.cell:not(:disabled):hover {
     background-color: #e3f2fd;
 }
 
@@ -59,4 +59,9 @@ h1 {
 
 .reset-btn:hover {
     background-color: #555;
+}
+
+.cell:disabled {
+    color: black;
+    cursor: not-allowed;
 }
