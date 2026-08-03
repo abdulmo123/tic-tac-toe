@@ -26,11 +26,35 @@ let GameController = (function () {
     let activePlayer = player1;
     let winner = {};
 
+    let xTurns = 0;
+    let oTurns = 0;
+
+    let xMoves = [];
+    let oMoves = [];
+
+
     const setMarker = (row, col) => {
         Gameboard.setBoardMarker(row, col, activePlayer);
-        activePlayer === player1 ? activePlayer = player2 : activePlayer = player1;
+        // console.log('activePlayer === ', activePlayer);
+        if (activePlayer === player1) {
+            xTurns++;
+            // console.log('xTurns = ', xTurns);
+            xMoves.push([Number(row), Number(col)]);
+            // console.log('xMoves =>', xMoves);
+        } else {
+            oTurns++;
+            // console.log('oTurns = ', oTurns);
+            oMoves.push([Number(row), Number(col)]);
+            // console.log('oMoves =>', oMoves);
+        }
         DisplayController.render();
-        checkWinner();
+        // check for a winner only after a player has taken 3 turns (need 3-in-a-row to win)
+        if (xTurns >= 3 || oTurns >= 3) {
+            checkWinner(xMoves, xTurns, oMoves, oTurns);
+        }
+
+        // switch turns
+        activePlayer === player1 ? activePlayer = player2 : activePlayer = player1;
     }
 
     const resetGame = () => {
@@ -41,28 +65,67 @@ let GameController = (function () {
             }
         }
         activePlayer = player1;
+        xTurns = 0;
+        xMoves = [];
+        oTurns = 0;
+        oMoves = [];
         DisplayController.render();
     }
 
     // check who won game
-    function checkWinner() {
-        if ((gameBoard[0][0] !== '' &&
-            gameBoard[0][0] === gameBoard[1][1] &&
-            gameBoard[1][1] === gameBoard[2][2]) ||
-            (gameBoard[0][0] !== '' &&
-                gameBoard[0][0] === gameBoard[0][1] &&
-                gameBoard[0][1] === gameBoard[0][2])) {
-            const winningMarker = gameBoard[0][0];
+    function checkWinner(xMoves, xTurns, oMoves, oTurns) {
 
-            const winner = winningMarker ? gamePlayers.find((player) => player.marker === winningMarker) : null;
-            console.log('winner!', winner);
-        } else {
-            // check if the board is full to declare draw
-            if (checkDraw()) {
-                console.log('GAME HAS ENDED IN A DRAW');
+        if (xTurns >= 3) {
+            checkXWin = checkMarkerWinner(xMoves, xTurns);
+            if (checkXWin) {
+                // TODO: x won the game!
+                console.log('X WINS!');
+            }
+        }
+
+        if (oTurns >= 3) {
+            checkOWin = checkMarkerWinner(oMoves, oTurns);
+            if (checkOWin) {
+                // TODO: o won the game!
+                console.log('O WINS!');
             }
         }
     }
+
+    function checkMarkerWinner(moves, turns) {
+        const xMap = new Map();
+        const yMap = new Map();
+        for (let i = 0; i < moves.length; i++) {
+            if (!xMap.has(moves[i][0])) {
+                xMap.set(moves[i][0], []);
+            }
+
+            xMap.get(moves[i][0]).push(moves[i][1]);
+
+            if (!yMap.has(moves[i][1])) {
+                yMap.set(moves[i][1], [])
+            }
+
+            yMap.get(moves[i][1]).push(moves[i][0]);
+            // console.log('moves[', i, '] = ', moves[i]);
+        }
+
+
+        // find a key whose value is 3! that's the winner!
+        for (const [key, list] of xMap) {
+            if (list.length === 3) {
+                return true;
+            }
+        }
+
+        for (const [key, list] of yMap) {
+            if (list.length === 3) {
+                return true;
+            }
+        }
+
+        return false;
+    };
 
     function checkDraw() {
         const blank = "";
