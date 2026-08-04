@@ -11,8 +11,10 @@
 
 <body>
     <div class="game-container">
-        <h1>Tic-Tac-Toe</h1>
-
+        <div class="header">
+            <h1>Tic-Tac-Toe</h1>
+            <!-- <h2>Player 1 WINS!</h2> -->
+        </div>
         <div class="game-board">
             <button data-row="0" data-col="0" class="cell"></button>
             <button data-row="0" data-col="1" class="cell"></button>
@@ -26,6 +28,13 @@
         </div>
 
         <button class="reset-btn">Reset Game</button>
+        <div class="modal-overlay" id="modal">
+            <div class="modal-box">
+                <span class="close-btn" id="close-modal">&times;</span>
+                <h2>Hello!</h2>
+                <p>This is a simple modal built with just HTML, CSS and JavaScript.</p>
+            </div>
+        </div>
     </div>
 </body>
 

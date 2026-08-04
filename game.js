@@ -18,8 +18,8 @@ let Gameboard = (function () {
 })();
 
 let GameController = (function () {
-    const player1 = createPlayer("John", "X");
-    const player2 = createPlayer("Jim", "O");
+    const player1 = createPlayer("Player 1", "X");
+    const player2 = createPlayer("Player 2", "O");
     const gamePlayers = [player1, player2];
     const gameBoard = Gameboard.getGameboard();
 
@@ -79,7 +79,7 @@ let GameController = (function () {
             checkXWin = checkMarkerWinner(xMoves, xTurns);
             if (checkXWin) {
                 // TODO: x won the game!
-                console.log('X WINS!');
+                DisplayController.renderWinnerMsg(activePlayer);
             }
         }
 
@@ -87,11 +87,12 @@ let GameController = (function () {
             checkOWin = checkMarkerWinner(oMoves, oTurns);
             if (checkOWin) {
                 // TODO: o won the game!
-                console.log('O WINS!');
+                DisplayController.renderWinnerMsg(activePlayer);
             }
         }
     }
 
+    // TODO: check for diagonal win ...
     function checkMarkerWinner(moves, turns) {
         const xMap = new Map();
         const yMap = new Map();
@@ -107,7 +108,6 @@ let GameController = (function () {
             }
 
             yMap.get(moves[i][1]).push(moves[i][0]);
-            // console.log('moves[', i, '] = ', moves[i]);
         }
 
 
@@ -172,7 +172,25 @@ let DisplayController = (function () {
                 cell.textContent = gameBoard[r][c];
             }
         }
+
+        const h2 = document.querySelector('h2');
+        if (h2) {
+            h2.remove();
+        }
     }
 
-    return { render }
+    const renderWinnerMsg = (activePlayer) => {
+        console.log('THE WINNER IS ...', activePlayer);
+        const header = document.querySelector('.header');
+        console.log('header..', header);
+        const h2 = document.createElement('h2');
+        h2.innerText = `${activePlayer.name} WINS!`;
+        h2.style.color = 'green';
+        header.appendChild(h2);
+        cells.forEach((cell) => {
+            cell.disabled = true;
+        });
+    }
+
+    return { render, renderWinnerMsg }
 })();
