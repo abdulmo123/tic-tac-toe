@@ -26,31 +26,20 @@ let GameController = (function () {
     let activePlayer = player1;
     let winner = {};
 
-    let xTurns = 0;
-    let oTurns = 0;
-
-    let xMoves = [];
-    let oMoves = [];
-
-
     const setMarker = (row, col) => {
         Gameboard.setBoardMarker(row, col, activePlayer);
-        // console.log('activePlayer === ', activePlayer);
-        if (activePlayer === player1) {
-            xTurns++;
-            // console.log('xTurns = ', xTurns);
-            xMoves.push([Number(row), Number(col)]);
-            // console.log('xMoves =>', xMoves);
-        } else {
-            oTurns++;
-            // console.log('oTurns = ', oTurns);
-            oMoves.push([Number(row), Number(col)]);
-            // console.log('oMoves =>', oMoves);
-        }
         DisplayController.render();
-        // check for a winner only after a player has taken 3 turns (need 3-in-a-row to win)
-        if (xTurns >= 3 || oTurns >= 3) {
-            checkWinner(xMoves, xTurns, oMoves, oTurns);
+
+        // check for a winner
+        if (checkWinner()) {
+            winner = activePlayer;
+            DisplayController.renderWinnerMsg(winner);
+        }
+
+        // check draw
+        if (checkDraw()) {
+            console.log('game did end as a draw!', checkDraw());
+            DisplayController.renderDrawMsg();
         }
 
         // switch turns
@@ -73,72 +62,46 @@ let GameController = (function () {
     }
 
     // check who won game
-    function checkWinner(xMoves, xTurns, oMoves, oTurns) {
+    function checkWinner() {
 
-        if (xTurns >= 3) {
-            checkXWin = checkMarkerWinner(xMoves, xTurns);
-            if (checkXWin) {
-                // TODO: x won the game!
-                DisplayController.renderWinnerMsg(activePlayer);
-            }
-        }
+        const rows = [0, 1, 2];
+        const cols = [0, 1, 2];
 
-        if (oTurns >= 3) {
-            checkOWin = checkMarkerWinner(oMoves, oTurns);
-            if (checkOWin) {
-                // TODO: o won the game!
-                DisplayController.renderWinnerMsg(activePlayer);
-            }
-        }
+        const winVertical = cols.some(col => (
+            gameBoard[0][col] === activePlayer.marker &&
+            gameBoard[1][col] === activePlayer.marker &&
+            gameBoard[2][col] === activePlayer.marker
+        ));
+
+        const winHorizontal = rows.some(row => (
+            gameBoard[row][0] === activePlayer.marker &&
+            gameBoard[row][1] === activePlayer.marker &&
+            gameBoard[row][2] === activePlayer.marker
+        ));
+
+        const winDiagonal1 = (
+            gameBoard[0][0] === activePlayer.marker &&
+            gameBoard[1][1] === activePlayer.marker &&
+            gameBoard[2][2] === activePlayer.marker
+        );
+
+        const winDiagonal2 = (
+            gameBoard[0][2] === activePlayer.marker &&
+            gameBoard[1][1] === activePlayer.marker &&
+            gameBoard[2][0] === activePlayer.marker
+        );
+
+        return winVertical || winHorizontal || winDiagonal1 || winDiagonal2;
     }
-
-    // TODO: check for diagonal win ...
-    function checkMarkerWinner(moves, turns) {
-        const xMap = new Map();
-        const yMap = new Map();
-        for (let i = 0; i < moves.length; i++) {
-            if (!xMap.has(moves[i][0])) {
-                xMap.set(moves[i][0], []);
-            }
-
-            xMap.get(moves[i][0]).push(moves[i][1]);
-
-            if (!yMap.has(moves[i][1])) {
-                yMap.set(moves[i][1], [])
-            }
-
-            yMap.get(moves[i][1]).push(moves[i][0]);
-        }
-
-
-        // find a key whose value is 3! that's the winner!
-        for (const [key, list] of xMap) {
-            if (list.length === 3) {
-                return true;
-            }
-        }
-
-        for (const [key, list] of yMap) {
-            if (list.length === 3) {
-                return true;
-            }
-        }
-
-        return false;
-    };
 
     function checkDraw() {
-        const blank = "";
-        for (let r = 0; r < gameBoard.length; r++) {
-            for (let c = 0; c < gameBoard.length; c++) {
-                if (gameBoard[r][c] !== blank) {
-                    return false;
-                }
-            }
-        }
+        const hasEmpty = gameBoard.some(row =>
+            row.some(cell => cell === "" || cell == null)
+        );
 
-        return true;
+        return !hasEmpty;
     }
+
     return { setMarker, resetGame };
 })();
 
@@ -192,5 +155,18 @@ let DisplayController = (function () {
         });
     }
 
-    return { render, renderWinnerMsg }
+    const renderDrawMsg = () => {
+        console.log('GAME ENDED IN A DRAW!');
+        const header = document.querySelector('.header');
+        console.log('header..', header);
+        const h2 = document.createElement('h2');
+        h2.innerText = "GAME ENDED IN A DRAW";
+        h2.style.color = 'red';
+        header.appendChild(h2);
+        cells.forEach((cell) => {
+            cell.disabled = true;
+        });
+    }
+
+    return { render, renderWinnerMsg, renderDrawMsg }
 })();
